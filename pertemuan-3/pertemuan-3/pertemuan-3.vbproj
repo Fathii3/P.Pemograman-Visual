@@ -30,7 +30,7 @@
     <None Update="asset\kc2.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="asset\kucing-emosi.jpg">
+    <None Update="asset\kc.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="asset\OIP.webp">
