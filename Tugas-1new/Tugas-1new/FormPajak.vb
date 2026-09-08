@@ -29,7 +29,6 @@
             Dim persenTeks As String = (persenPajak * 100).ToString() & "%"
 
             'Tampilkan detail informasi gaji diinput, persen pajak, dan harga pajak
-            'Teks tombol hitung tidak diubah
             Dim pesan As String = "Informasi Pajak:" & vbCrLf &
                                   "Gaji yang Diinput: Rp " & pendapatan.ToString("N0") & vbCrLf &
                                   "Persentase Pajak: " & persenTeks & vbCrLf &
