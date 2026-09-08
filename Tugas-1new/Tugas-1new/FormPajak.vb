@@ -4,7 +4,7 @@
         Dim persenPajak As Double = 0
         Dim totalPajak As Double = 0
 
-        'Hilangkan titik jika pengguna mengetik angka seperti 10.000.000
+        'menghilangkan titik seperti 10.000.000
         Dim nilaiInput As String = txtPendapatan.Text.Replace(".", "").Trim()
 
         If String.IsNullOrWhiteSpace(nilaiInput) Then
@@ -13,7 +13,7 @@
             Return
         End If
 
-        'Validasi input harus angka dan lebih dari 0
+        'Validasi input harus angka lebih dari 0
         If Double.TryParse(nilaiInput, pendapatan) AndAlso pendapatan > 0 Then
             If pendapatan > 100000000 Then
                 persenPajak = 0.3
@@ -29,7 +29,7 @@
             Dim persenTeks As String = (persenPajak * 100).ToString() & "%"
 
             'Tampilkan detail informasi gaji diinput, persen pajak, dan harga pajak
-            '(Teks tombol hitung tidak diubah)
+            'Teks tombol hitung tidak diubah
             Dim pesan As String = "Informasi Pajak:" & vbCrLf &
                                   "Gaji yang Diinput: Rp " & pendapatan.ToString("N0") & vbCrLf &
                                   "Persentase Pajak: " & persenTeks & vbCrLf &
