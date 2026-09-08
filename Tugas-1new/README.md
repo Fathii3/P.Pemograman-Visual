@@ -7,7 +7,7 @@
 ## 1. Deskripsi Program
 
 Aplikasi desktop berbasis **Windows Forms (VB.NET)** yang mengintegrasikan alur autentikasi dan perhitungan pajak penghasilan dalam dua form terpisah:
-1. **`FormLogin`**: Form autentikasi yang dilengkapi pemfilteran karakter input secara *real-time*, validasi format string (Regex), pemformatan teks (*Proper Case*), dan pergantian avatar/gambar dinamis sesuai pilihan *role*.
+1. **`FormLogin`**: Form autentikasi yang dilengkapi pemfilteran karakter input secara *real-time*, validasi format string (Regex), pemformatan teks (*Proper Case*), pergantian avatar/gambar dinamis sesuai pilihan *role*, serta validasi kecocokan akun terdaftar (*Role-based Authentication*).
 2. **`FormPajak`**: Form kalkulator perpajakan berbasis aturan tingkatan pendapatan (*tiering*), dilengkapi normalisasi format angka ribuan dan kalkulasi gaji bersih.
 
 ---
@@ -34,6 +34,13 @@ Aplikasi desktop berbasis **Windows Forms (VB.NET)** yang mengintegrasikan alur 
 > File `staff.png` dan `manager.png` diletakkan di dalam folder `assets/`. Properti file pada Solution Explorer diatur:
 > - **Copy to Output Directory:** `Copy if newer`
 
+> **Kredensial Akun Valid (*Role-based Hardcoded Data*):**
+>
+> | Role | Nama Pengguna | NIM |
+> | :--- | :--- | :--- |
+> | **Staff** | `Fathi` | `241712019` |
+> | **Manager** | `Fadhil` | `241712019` |
+
 ---
 
 ### 2.2 FormPajak (`FormPajak.vb`)
@@ -56,7 +63,7 @@ Aplikasi desktop berbasis **Windows Forms (VB.NET)** yang mengintegrasikan alur 
 
 ### 3.1 `FormLogin.vb`
 
-Logika pada form login menangani inisialisasi default, penggantian gambar dinamis, pencegahan input karakter non-digit, serta validasi kelayakan data sebelum navigasi ke form pajak.
+Logika pada form login menangani inisialisasi default, penggantian gambar dinamis, pencegahan input karakter non-digit, normalisasi nama, autentikasi kecocokan data kredensial (Role, Nama, NIM), serta navigasi aman ke form pajak.
 
 ```vb
 Public Class FormLogin
@@ -114,9 +121,19 @@ Public Class FormLogin
             Return
         End If
 
-        ' Format nama ke Proper Case (contoh: "fathi fadhil" -> "Fathi Fadhil")
+        ' Format nama ke Proper Case (contoh: "fAtHi" -> "Fathi")
         Dim namaRapi As String = Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(rawNama.ToLower())
         txtNama.Text = namaRapi
+
+        ' 5. Validasi: Kecocokan data akun berdasarkan Role (Role-based Authentication)
+        ' Catatan: Hardcoded accounts ceiling; upgrade ke database/store saat akun pengguna dinamis
+        Dim isValidUser As Boolean = (roleTerpilih = "Staff" AndAlso namaRapi = "Fathi" AndAlso rawNIM = "241712019") OrElse
+                                     (roleTerpilih = "Manager" AndAlso namaRapi = "Fadhil" AndAlso rawNIM = "241712019")
+
+        If Not isValidUser Then
+            MessageBox.Show("Nama atau NIM tidak sesuai dengan Role yang dipilih!", "Login Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
 
         ' Dialog konfirmasi login berhasil
         Dim infoLogin As String = "Login Berhasil!" & vbCrLf &
@@ -199,7 +216,7 @@ End Class
 
 ## 4. Rangkuman Fungsi & API Utama
 
-| Fungsi / Metode | Kegunaan dalam Program |
+| Fungsi / Metode / Operator | Kegunaan dalam Program |
 | :--- | :--- |
 | `System.Drawing.Image.FromFile(path)` | Memuat file citra dari direktori lokal ke kontrol `PictureBox` saat aplikasi berjalan. |
 | `picImage.SizeMode = PictureBoxSizeMode.Zoom` | Menyesuaikan rasio gambar secara proporsional sesuai dimensi kontrol tanpa distorsi. |
@@ -208,6 +225,7 @@ End Class
 | `e.Handled = True` | Membatalkan eksekusi pengetikan tombol keyboard sehingga karakter tidak ditampilkan di textbox. |
 | `Regex.IsMatch(input, pattern)` | Validasi pola string dengan regular expression (`^[a-zA-Z\s]+$` untuk huruf dan spasi). |
 | `TextInfo.ToTitleCase(string)` | Mengubah format penulisan kata menjadi huruf awal kapital (*Proper Case*). |
+| `AndAlso` & `OrElse` | Operator logika *short-circuit* untuk mengevaluasi kombinasi syarat validasi kredensial pengguna (`Role`, `Nama`, `NIM`). |
 | `String.Replace(".", "")` | Menghapus tanda titik pemisah ribuan sebelum parsing desimal. |
 | `Double.TryParse(input, hasil)` | Mengonversi teks ke numerik bertipe `Double` secara aman tanpa memicu crash. |
 | `ToString("N0")` | Format tampilan numerik dengan pemisah ribuan standar (*Number format, 0 desimal*). |
@@ -219,9 +237,12 @@ End Class
 | Skenario Pengujian | Masukan / Tindakan | Hasil yang Diharapkan |
 | :--- | :--- | :--- |
 | **Ganti Role** | Pilih `Manager` di ComboBox | Avatar berubah ke `manager.png` secara otomatis. |
-| **Input NIM (Karakter Ilegal)** | Mengetik huruf atau simbol pada `txtNIM` | Input ditolak secara langsung (*real-time*). |
+| **Input NIM (Karakter Ilegal)** | Mengetik huruf atau simbol pada `txtNIM` | Input ditolak secara langsung (*real-time*) oleh event `KeyPress`. |
 | **Input Nama (Format Ilegal)** | Mengisi `F4thi@` | Validasi Regex memicu dialog peringatan nama tidak valid. |
-| **Normalisasi Nama** | Mengisi `fAtHi fAdHiL` | Nama diformat otomatis menjadi `Fathi Fadhil` pada MessageBox & TextBox. |
-| **Navigasi Form** | Tombol Login diklik dengan data valid | Muncul info login, `FormLogin` disembunyikan, `FormPajak` dibuka. |
+| **Normalisasi Nama** | Mengisi `fAtHi` | Nama diformat otomatis menjadi `Fathi` pada MessageBox & TextBox. |
+| **Login Gagal (Data Role Mismatch)** | Pilih `Staff`, isi Nama `Fadhil`, NIM `241712019` | Muncul pesan error: *"Nama atau NIM tidak sesuai dengan Role yang dipilih!"*. |
+| **Login Gagal (NIM Mismatch)** | Pilih `Staff`, isi Nama `Fathi`, NIM `12345678` | Muncul pesan error: *"Nama atau NIM tidak sesuai dengan Role yang dipilih!"*. |
+| **Navigasi Form: Login Staff Valid** | Pilih `Staff`, Nama `Fathi`, NIM `241712019` | Muncul info login sukses, `FormLogin` disembunyikan, `FormPajak` dibuka. |
+| **Navigasi Form: Login Manager Valid** | Pilih `Manager`, Nama `Fadhil`, NIM `241712019` | Muncul info login sukses, `FormLogin` disembunyikan, `FormPajak` dibuka. |
 | **Normalisasi Titik Gaji** | Mengisi `10.000.000` pada pendapatan | Tanda titik dibersihkan, dihitung sebagai `10000000` (Pajak 10% = Rp 1.000.000, Bersih = Rp 9.000.000). |
-| **Input Gaji Negatif / Nol** | Mengisi `-50000` atau `0` | Muncul dialog error "Masukkan angka gaji yang benar (harus lebih dari 0)". |
+| **Input Gaji Negatif / Nol** | Mengisi `-50000` atau `0` | Muncul dialog error: *"Masukkan angka gaji yang benar (harus lebih dari 0)!"*. |

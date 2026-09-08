@@ -46,11 +46,20 @@
             Return
         End If
 
-        ' Format nama agar huruf awal kapital (Proper Case), contoh: "FATHi FadHIl" jadi "Fathi Fadhil"
+        'Format nama agar huruf awal kapital (Proper Case), contoh: "FATHi FadHIl" jadi "Fathi Fadhil"
         Dim namaRapi As String = Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(rawNama.ToLower())
         txtNama.Text = namaRapi
 
-        ' Tampilkan informasi validasi login (Nama, NIM, Role)
+        'ponytail: hardcoded accounts ceiling; upgrade to database/store when user accounts become dynamic
+        Dim isValidUser As Boolean = (roleTerpilih = "Staff" AndAlso namaRapi = "Fathi" AndAlso rawNIM = "241712019") OrElse
+                                     (roleTerpilih = "Manager" AndAlso namaRapi = "Fadhil" AndAlso rawNIM = "241712019")
+
+        If Not isValidUser Then
+            MessageBox.Show("Nama atau NIM tidak sesuai dengan Role yang dipilih!", "Login Gagal", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Return
+        End If
+
+        'Tampilkan informasi validasi login (Nama, NIM, Role)
         Dim infoLogin As String = "Login Berhasil!" & vbCrLf &
                                   "Nama : " & namaRapi & vbCrLf &
                                   "NIM  : " & rawNIM & vbCrLf &
