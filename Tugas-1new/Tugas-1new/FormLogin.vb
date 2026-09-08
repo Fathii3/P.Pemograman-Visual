@@ -46,11 +46,10 @@
             Return
         End If
 
-        'Format nama agar huruf awal kapital (Proper Case), contoh: "FATHi FadHIl" jadi "Fathi Fadhil"
+        'Format nama agar huruf awal kapital (Proper Case), misal: "FATHi FadHIl" jadi "Fathi Fadhil"
         Dim namaRapi As String = Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(rawNama.ToLower())
         txtNama.Text = namaRapi
 
-        'ponytail: hardcoded accounts ceiling; upgrade to database/store when user accounts become dynamic
         Dim isValidUser As Boolean = (roleTerpilih = "Staff" AndAlso namaRapi = "Fathi" AndAlso rawNIM = "241712019") OrElse
                                      (roleTerpilih = "Manager" AndAlso namaRapi = "Fadhil" AndAlso rawNIM = "241712019")
 
@@ -68,6 +67,10 @@
 
         Me.Hide()
         FormPajak.Show()
+    End Sub
+
+    Private Sub picImage_Click(sender As Object, e As EventArgs) Handles picImage.Click
+
     End Sub
 End Class
 

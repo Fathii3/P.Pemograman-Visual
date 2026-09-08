@@ -70,6 +70,7 @@ Partial Class FormLogin
         ' cmbRole
         ' 
         cmbRole.FormattingEnabled = True
+        cmbRole.ImeMode = ImeMode.NoControl
         cmbRole.Items.AddRange(New Object() {"Staff", "Manager"})
         cmbRole.Location = New Point(155, 177)
         cmbRole.Name = "cmbRole"
